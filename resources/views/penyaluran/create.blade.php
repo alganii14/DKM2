@@ -46,11 +46,6 @@
                                     </select>
                                 </div>
 
-<<<<<<< HEAD
-                                <div class="form-group">
-                                    <label for="total_penyaluran">Total Penyaluran</label>
-                                    <input type="number" class="form-control" id="total_penyaluran" name="total_penyaluran" required>
-=======
                                 <!-- Informasi Saldo -->
                                 <div id="info-saldo" class="mb-3" style="display: none;">
                                     <div class="card bg-light">
@@ -70,8 +65,6 @@
                                 <div class="form-group">
                                     <label for="total_penyaluran">Total Penyaluran</label>
                                     <input type="number" class="form-control" id="total_penyaluran" name="total_penyaluran" required>
-                                    <small class="text-muted">Catatan: 2,5% dari total akan dikembalikan ke saldo</small>
->>>>>>> a4508c7 (zakat)
                                 </div>
 
                                 <div class="form-group">
@@ -97,30 +90,17 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-<<<<<<< HEAD
-                                    <div class="col-md-6">
-                                        <div class="info-box">
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Bagian Fakir/Miskin (62.5%)</span>
-                                                <span class="info-box-number" id="bagianFakirMiskin">0</span>
-                                                <small>Bagian per KK: <span id="bagianPerKK">0</span></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="info-box">
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Bagian Amilin (37.5%)</span>
-                                                <span class="info-box-number" id="bagianAmilin">0</span>
-=======
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Bagian Fakir/Miskin (65%)</span>
                                                 <span class="info-box-number" id="bagianFakirMiskin">0</span>
+                                                <div id="bagianFakirMiskinBeras" style="display: none;">
+                                                    <small>Setara dengan: <span id="berasFakirMiskin">0</span> kg beras</small>
+                                                </div>
                                                 <small>Bagian per KK: <span id="bagianPerKK">0</span></small>
-                                                <div id="beras-fakir-container" style="display: none;">
-                                                    <small>Beras per KK: <span id="berasPerKK">0 kg</span></small>
+                                                <div id="bagianPerKKBeras" style="display: none;">
+                                                    <small>Setara dengan: <span id="berasPerKK">0</span> kg beras</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -130,9 +110,8 @@
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Bagian Amilin (32.5%)</span>
                                                 <span class="info-box-number" id="bagianAmilin">0</span>
-                                                <small>Bagian per Amilin: <span id="bagianPerAmilin">0</span></small>
-                                                <div id="beras-amilin-container" style="display: none;">
-                                                    <small>Beras per Amilin: <span id="berasPerAmilin">0 kg</span></small>
+                                                <div id="bagianAmilinBeras" style="display: none;">
+                                                    <small>Setara dengan: <span id="berasAmilin">0</span> kg beras</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -142,8 +121,10 @@
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Sisa Zakat (2.5%)</span>
                                                 <span class="info-box-number" id="sisaZakat">0</span>
+                                                <div id="sisaZakatBeras" style="display: none;">
+                                                    <small>Setara dengan: <span id="berasSisaZakat">0</span> kg beras</small>
+                                                </div>
                                                 <small class="text-success">Dikembalikan ke saldo</small>
->>>>>>> a4508c7 (zakat)
                                             </div>
                                         </div>
                                     </div>
@@ -185,36 +166,35 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedMustahiks = new Set();
     let mustahikData = @json($mustahiks);
 
-<<<<<<< HEAD
-=======
     // Saldo per jenis zakat
     const saldoPerJenisZakat = @json($saldoPerJenisZakat);
+
+    // Untuk menyimpan data perhitungan distribusi
+    let distributionData = {
+        fakirMiskin: 0,
+        amilin: 0,
+        sisaZakat: 0,
+        perKK: 0,
+        perAmilin: 0,
+        berasFakirMiskin: 0,
+        berasAmilin: 0,
+        berasSisaZakat: 0,
+        berasPerKK: 0
+    };
+
+    // Flag untuk menyimpan apakah jenis zakat saat ini memiliki beras
+    let hasBeras = false;
+
+    // Nilai beras per kg
+    const nilaiBerasPerKg = 14000;
 
     // Debugging
     console.log('Saldo Per Jenis Zakat:', saldoPerJenisZakat);
 
->>>>>>> a4508c7 (zakat)
     // Set default date and time
     document.querySelector('input[name="tanggal_penyaluran"]').value = new Date().toISOString().split('T')[0];
     document.querySelector('input[name="jam_penyaluran"]').value = new Date().toLocaleTimeString('en-GB').slice(0, 5);
 
-<<<<<<< HEAD
-    function calculateDistribution() {
-        const totalPenyaluran = parseFloat(document.getElementById('total_penyaluran').value) || 0;
-
-        // Calculate portions
-        const bagianFakirMiskin = totalPenyaluran * 0.625;
-        const bagianAmilin = totalPenyaluran * 0.375;
-
-        // Count Fakir/Miskin recipients
-        const fakirMiskinCount = Array.from(container.querySelectorAll('.mustahik-select')).filter(select => {
-            const mustahik = mustahikData.find(m => m.no_mustahik === select.value);
-            return mustahik && mustahik.asnaf === 'Fakir/Miskin';
-        }).length || 1; // Prevent division by zero
-
-        // Calculate base amount per KK
-        const bagianPerKK = bagianFakirMiskin / fakirMiskinCount;
-=======
     // Auto-fill total_penyaluran when jenis_zakat changes
     document.getElementById('jenis_zakat').addEventListener('change', function() {
         const jenisZakat = this.value;
@@ -226,8 +206,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const saldoBerasSpan = document.getElementById('saldo-beras');
         const nilaiBerasSpan = document.getElementById('nilai-beras');
         const totalSaldoSpan = document.getElementById('total-saldo');
-        const berasFakirContainer = document.getElementById('beras-fakir-container');
-        const berasAmilinContainer = document.getElementById('beras-amilin-container');
+
+        // Reset tampilan beras
+        hasBeras = false;
 
         if (jenisZakat && saldoPerJenisZakat[jenisZakat]) {
             // Tampilkan informasi saldo
@@ -241,12 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 saldoBerasContainer.style.display = 'block';
                 saldoBerasSpan.textContent = saldoPerJenisZakat[jenisZakat].beras.toFixed(2) + ' kg';
                 nilaiBerasSpan.textContent = formatRupiah(saldoPerJenisZakat[jenisZakat].nilai_beras);
-                berasFakirContainer.style.display = 'block';
-                berasAmilinContainer.style.display = 'block';
+                hasBeras = true;
             } else {
                 saldoBerasContainer.style.display = 'none';
-                berasFakirContainer.style.display = 'none';
-                berasAmilinContainer.style.display = 'none';
             }
 
             // Tampilkan total saldo
@@ -263,12 +241,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateDistribution() {
         const totalPenyaluran = parseFloat(document.getElementById('total_penyaluran').value) || 0;
-        const jenisZakat = document.getElementById('jenis_zakat').value;
 
         // Calculate portions with new percentages
         const bagianFakirMiskin = totalPenyaluran * 0.65;  // 65%
         const bagianAmilin = totalPenyaluran * 0.325;      // 32.5%
         const sisaZakat = totalPenyaluran * 0.025;         // 2.5%
+
+        // Simpan data distribusi
+        distributionData.fakirMiskin = bagianFakirMiskin;
+        distributionData.amilin = bagianAmilin;
+        distributionData.sisaZakat = sisaZakat;
 
         // Count Fakir/Miskin recipients
         const fakirMiskinSelects = Array.from(container.querySelectorAll('.mustahik-select')).filter(select => {
@@ -291,52 +273,46 @@ document.addEventListener('DOMContentLoaded', function() {
         const bagianPerKK = bagianFakirMiskin / fakirMiskinCount;
         const bagianPerAmilin = bagianAmilin / amilinCount;
 
-        // Calculate beras equivalents if applicable
-        let berasPerKK = 0;
-        let berasPerAmilin = 0;
+        // Simpan data per-KK
+        distributionData.perKK = bagianPerKK;
+        distributionData.perAmilin = bagianPerAmilin;
 
-        if (jenisZakat === 'Zakat Fitrah' && saldoPerJenisZakat[jenisZakat].beras > 0) {
-            // Hitung berapa kg beras yang setara dengan bagian uang
-            berasPerKK = bagianPerKK / 14000; // Asumsi 1 kg beras = Rp 14.000
-            berasPerAmilin = bagianPerAmilin / 14000;
+        // Hitung setara beras jika ada
+        if (hasBeras) {
+            distributionData.berasFakirMiskin = bagianFakirMiskin / nilaiBerasPerKg;
+            distributionData.berasAmilin = bagianAmilin / nilaiBerasPerKg;
+            distributionData.berasSisaZakat = sisaZakat / nilaiBerasPerKg;
+            distributionData.berasPerKK = bagianPerKK / nilaiBerasPerKg;
+
+            // Tampilkan informasi beras
+            document.getElementById('bagianFakirMiskinBeras').style.display = 'block';
+            document.getElementById('bagianAmilinBeras').style.display = 'block';
+            document.getElementById('sisaZakatBeras').style.display = 'block';
+            document.getElementById('bagianPerKKBeras').style.display = 'block';
+
+            document.getElementById('berasFakirMiskin').textContent = distributionData.berasFakirMiskin.toFixed(2);
+            document.getElementById('berasAmilin').textContent = distributionData.berasAmilin.toFixed(2);
+            document.getElementById('berasSisaZakat').textContent = distributionData.berasSisaZakat.toFixed(2);
+            document.getElementById('berasPerKK').textContent = distributionData.berasPerKK.toFixed(2);
+        } else {
+            // Sembunyikan informasi beras
+            document.getElementById('bagianFakirMiskinBeras').style.display = 'none';
+            document.getElementById('bagianAmilinBeras').style.display = 'none';
+            document.getElementById('sisaZakatBeras').style.display = 'none';
+            document.getElementById('bagianPerKKBeras').style.display = 'none';
         }
->>>>>>> a4508c7 (zakat)
 
         // Update display
         document.getElementById('bagianFakirMiskin').textContent = formatRupiah(bagianFakirMiskin);
         document.getElementById('bagianAmilin').textContent = formatRupiah(bagianAmilin);
-<<<<<<< HEAD
-        document.getElementById('bagianPerKK').textContent = formatRupiah(bagianPerKK);
-=======
         document.getElementById('sisaZakat').textContent = formatRupiah(sisaZakat);
         document.getElementById('bagianPerKK').textContent = formatRupiah(bagianPerKK);
-        document.getElementById('bagianPerAmilin').textContent = formatRupiah(bagianPerAmilin);
-        document.getElementById('berasPerKK').textContent = berasPerKK.toFixed(2) + ' kg';
-        document.getElementById('berasPerAmilin').textContent = berasPerAmilin.toFixed(2) + ' kg';
->>>>>>> a4508c7 (zakat)
 
         // Update jumlah_terima for each recipient
         container.querySelectorAll('.row').forEach(row => {
             const select = row.querySelector('.mustahik-select');
             const jumlahInput = row.querySelector('input[name$="[jumlah_terima]"]');
-<<<<<<< HEAD
-            const mustahik = mustahikData.find(m => m.no_mustahik === select.value);
-
-            if (mustahik) {
-                let jumlah = 0;
-                if (mustahik.asnaf === 'Fakir/Miskin') {
-                    // Calculate with children
-                    const baseAmount = bagianPerKK;
-                    const childrenBonus = mustahik.jumlah_anak > 0 ? (baseAmount / mustahik.jumlah_anak) : 0;
-                    jumlah = baseAmount + childrenBonus;
-                } else if (mustahik.asnaf === 'Amilin' || mustahik.asnaf === 'Amilin Lainnya') {
-                    jumlah = bagianAmilin;
-                }
-                jumlahInput.value = Math.round(jumlah);
-=======
-            const jenisTerimaSelect = row.querySelector('select[name$="[jenis_terima]"]');
-            const jumlahBerasInput = row.querySelector('input[name$="[jumlah_beras]"]');
-            const berasContainer = row.querySelector('.beras-container');
+            const berasInfoDiv = row.querySelector('.beras-info');
 
             if (select.value) {
                 const mustahik = mustahikData.find(m => m.no_mustahik === select.value);
@@ -345,50 +321,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Processing mustahik:', mustahik.nama_mustahik, 'Asnaf:', mustahik.asnaf);
 
                     let jumlah = 0;
+                    let berasEquivalent = 0;
 
                     if (mustahik.asnaf === 'Fakir' || mustahik.asnaf === 'Miskin') {
                         // Bagian untuk Fakir/Miskin
                         jumlah = Math.round(bagianPerKK);
+                        berasEquivalent = jumlah / nilaiBerasPerKg;
                         console.log('Fakir/Miskin amount:', jumlah);
                     } else if (mustahik.asnaf === 'Amilin' || mustahik.asnaf === 'Amilin Lainnya') {
                         // Bagian untuk Amilin
                         jumlah = Math.round(bagianPerAmilin);
+                        berasEquivalent = jumlah / nilaiBerasPerKg;
                         console.log('Amilin amount:', jumlah);
                     }
 
                     jumlahInput.value = jumlah;
 
-                    // Show beras option if Zakat Fitrah and has beras
-                    if (jenisZakat === 'Zakat Fitrah' && saldoPerJenisZakat[jenisZakat].beras > 0) {
-                        jenisTerimaSelect.style.display = 'block';
-
-                        // Update jumlah_beras when jenis_terima changes
-                        jenisTerimaSelect.onchange = function() {
-                            if (this.value === 'beras') {
-                                berasContainer.style.display = 'block';
-                                if (mustahik.asnaf === 'Fakir' || mustahik.asnaf === 'Miskin') {
-                                    jumlahBerasInput.value = berasPerKK.toFixed(2);
-                                } else if (mustahik.asnaf === 'Amilin' || mustahik.asnaf === 'Amilin Lainnya') {
-                                    jumlahBerasInput.value = berasPerAmilin.toFixed(2);
-                                }
-                            } else {
-                                berasContainer.style.display = 'none';
-                            }
-                        };
-
-                        // Trigger change event to set initial state
-                        jenisTerimaSelect.dispatchEvent(new Event('change'));
-                    } else {
-                        jenisTerimaSelect.style.display = 'none';
-                        berasContainer.style.display = 'none';
+                    // Update info beras
+                    if (hasBeras && berasInfoDiv) {
+                        berasInfoDiv.style.display = 'block';
+                        berasInfoDiv.querySelector('.beras-equivalent').textContent = berasEquivalent.toFixed(2);
+                    } else if (berasInfoDiv) {
+                        berasInfoDiv.style.display = 'none';
                     }
                 } else {
                     console.log('Mustahik not found for:', select.value);
                     jumlahInput.value = '';
+                    if (berasInfoDiv) berasInfoDiv.style.display = 'none';
                 }
             } else {
                 jumlahInput.value = '';
->>>>>>> a4508c7 (zakat)
+                if (berasInfoDiv) berasInfoDiv.style.display = 'none';
             }
         });
     }
@@ -396,13 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatRupiah(amount) {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
-<<<<<<< HEAD
-            currency: 'IDR'
-=======
             currency: 'IDR',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
->>>>>>> a4508c7 (zakat)
         }).format(amount);
     }
 
@@ -433,58 +392,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('div');
         row.className = 'row mb-3';
         row.innerHTML = `
-<<<<<<< HEAD
-            <div class="col-md-6">
-=======
-            <div class="col-md-4">
->>>>>>> a4508c7 (zakat)
+            <div class="col-md-5">
                 <div class="form-group">
                     <label>Mustahik</label>
                     <select class="form-control mustahik-select" name="penerimas[${counter}][no_mustahik]" required>
                         <option value="">Pilih Mustahik</option>
                         @foreach($mustahiks as $mustahik)
                             <option value="{{ $mustahik->no_mustahik }}"
-<<<<<<< HEAD
-                                    data-asnaf="{{ $mustahik->asnaf }}"
-                                    data-jumlah-anak="{{ $mustahik->jumlah_anak }}">
-=======
                                     data-asnaf="{{ $mustahik->asnaf }}">
->>>>>>> a4508c7 (zakat)
                                 {{ $mustahik->nama_mustahik }} ({{ $mustahik->asnaf }})
                             </option>
                         @endforeach
                     </select>
                 </div>
             </div>
-<<<<<<< HEAD
             <div class="col-md-5">
                 <div class="form-group">
                     <label>Jumlah Terima</label>
-                    <input type="number" class="form-control" name="penerimas[${counter}][jumlah_terima]" required>
-=======
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label>Jumlah Terima</label>
                     <input type="number" class="form-control jumlah-terima" name="penerimas[${counter}][jumlah_terima]" required>
+                    <div class="beras-info mt-1" style="display: none;">
+                        <small class="text-muted">Setara dengan <span class="beras-equivalent">0</span> kg beras</small>
+                    </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="form-group">
-                    <label>Jenis Penerimaan</label>
-                    <select class="form-control" name="penerimas[${counter}][jenis_terima]" style="display: none;">
-                        <option value="uang">Uang</option>
-                        <option value="beras">Beras</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-2 beras-container" style="display: none;">
-                <div class="form-group">
-                    <label>Jumlah Beras (kg)</label>
-                    <input type="number" step="0.01" class="form-control" name="penerimas[${counter}][jumlah_beras]">
->>>>>>> a4508c7 (zakat)
-                </div>
-            </div>
-            <div class="col-md-1">
                 <div class="form-group">
                     <label>&nbsp;</label>
                     <button type="button" class="btn btn-danger btn-block hapus-penerima">
@@ -510,8 +441,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add new value to selected set if it's not empty
             if (newValue) {
                 selectedMustahiks.add(newValue);
-<<<<<<< HEAD
-=======
                 console.log('Selected mustahik:', newValue);
 
                 // Get the mustahik data
@@ -521,7 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     console.log('Mustahik not found for:', newValue);
                 }
->>>>>>> a4508c7 (zakat)
             }
 
             // Store current value as previous value for next change
@@ -564,7 +492,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
-<<<<<<< HEAD
-
-=======
->>>>>>> a4508c7 (zakat)

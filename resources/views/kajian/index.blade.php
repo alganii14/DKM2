@@ -4,11 +4,7 @@
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid">
-<<<<<<< HEAD
-            <h1>Daftar Kajian</h1>
-=======
             <h1>Daftar Kegiatan</h1>
->>>>>>> a4508c7 (zakat)
         </div>
     </section>
 
@@ -24,11 +20,7 @@
             @endif
 
             <div class="mb-3">
-<<<<<<< HEAD
-                <a href="{{ route('kajian.create') }}" class="btn btn-success">Tambah Kajian</a>
-=======
                 <a href="{{ route('kajian.create') }}" class="btn btn-success">Tambah Kegiatan</a>
->>>>>>> a4508c7 (zakat)
             </div>
 
             <div class="card">
@@ -40,19 +32,11 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-<<<<<<< HEAD
-                                <th>Judul Kajian</th>
-                                <th>Nama Ustad</th>
-                                <th>Tanggal Kajian</th>
-                                <th>Deskripsi Kajian</th>
-                                <th>Foto Kajian</th>
-=======
                                 <th>Judul Kegiatan</th>
                                 <th>Nama Ustad</th>
                                 <th>Tanggal Kegiatan</th>
                                 <th>Deskripsi Kegiatan</th>
                                 <th>Foto Kegiatan</th>
->>>>>>> a4508c7 (zakat)
                                 <th>Foto Ustad</th>
                                 <th>Aksi</th>
                             </tr>

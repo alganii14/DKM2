@@ -61,12 +61,9 @@
                                 <option value="Koordinator Bidang Pemberdayaan ZISWAF"
                                     {{ old('jabatan') == 'Koordinator Bidang Pemberdayaan ZISWAF' ? 'selected' : '' }}>
                                     Koordinator Bidang Pemberdayaan ZISWAF</option>
-<<<<<<< HEAD
-=======
                                 <option value="Petugas Qurban"
                                     {{ old('jabatan') == 'Petugas Qurban' ? 'selected' : '' }}>
                                     Petugas Qurban</option>
->>>>>>> a4508c7 (zakat)
                                 <option value="Ketua DKM" {{ old('jabatan') == 'Ketua DKM' ? 'selected' : '' }}>Ketua
                                     DKM</option>
                             </select>
@@ -122,8 +119,4 @@ document.getElementById('showPassword').addEventListener('change', function() {
     }
 });
 </script>
-<<<<<<< HEAD
 @endsection
-=======
-@endsection
->>>>>>> a4508c7 (zakat)

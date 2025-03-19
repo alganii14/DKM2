@@ -19,8 +19,6 @@
             </div>
             @endif
 
-<<<<<<< HEAD
-=======
             <!-- Ringkasan Saldo -->
             <div class="row">
                 <div class="col-lg-3 col-6">
@@ -73,7 +71,7 @@
             </div>
 
             <!-- Info Beras -->
-            <div class="mb-4 row">
+            {{-- <div class="mb-4 row">
                 <div class="col-lg-6">
                     <div class="info-box bg-gradient-primary">
                         <span class="info-box-icon"><i class="fas fa-balance-scale"></i></span>
@@ -89,9 +87,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
->>>>>>> a4508c7 (zakat)
             <div class="mb-3">
                 <a href="{{ route('penyaluran.create') }}" class="btn btn-primary">Tambah Penyaluran</a>
             </div>
@@ -124,11 +121,7 @@
                                 <td>{{ $penyaluran->jam_penyaluran }}</td>
                                 <td>{{ $penyaluran->petugas_penyaluran }}</td>
                                 <td>{{ $penyaluran->jenis_zakat }}</td>
-<<<<<<< HEAD
-                                <td>{{ number_format($penyaluran->total_penyaluran, 0, ',', '.') }}</td>
-=======
                                 <td>Rp {{ number_format($penyaluran->total_penyaluran, 0, ',', '.') }}</td>
->>>>>>> a4508c7 (zakat)
                                 <td>{{ $penyaluran->status_penyaluran }}</td>
                                 <td>
                                     <a href="{{ route('penyaluran.edit', $penyaluran->no_penyaluran) }}" class="btn btn-sm btn-warning">Edit</a>

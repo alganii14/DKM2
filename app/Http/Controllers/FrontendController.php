@@ -28,12 +28,11 @@ class FrontendController extends Controller
         // Ambil semua data donatur untuk dropdown di form infaq
         $donaturs = Donatur::all();
 
-<<<<<<< HEAD
-=======
+
         // Calculate total infaq balance
         $totalInfaq = Infaq::sum('jumlah');
 
->>>>>>> a4508c7 (zakat)
+
         // Generate nomor penerimaan otomatis untuk form infaq
         $lastInfaq = Infaq::orderBy('id', 'desc')->first();
         $prefix = 'PD.';
@@ -49,11 +48,9 @@ class FrontendController extends Controller
         $no_penerimaan = $prefix . $date . '.' . str_pad($lastNumber, 3, '0', STR_PAD_LEFT);
 
         // Kirim data ke view
-<<<<<<< HEAD
-        return view('dashboard', compact('sholats', 'kajians', 'inventories', 'donaturs', 'no_penerimaan'));
-=======
+
         return view('dashboard', compact('sholats', 'kajians', 'inventories', 'donaturs', 'no_penerimaan', 'totalInfaq'));
->>>>>>> a4508c7 (zakat)
+
     }
 
     /**
@@ -77,7 +74,4 @@ class FrontendController extends Controller
         return redirect()->route('dashboard')->with('success', 'Terima kasih atas infaq Anda. Data infaq berhasil disimpan.');
     }
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> a4508c7 (zakat)

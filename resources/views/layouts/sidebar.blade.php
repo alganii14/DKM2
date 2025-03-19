@@ -21,11 +21,8 @@
                 </li>
 
                 <!-- Master dropdown -->
-<<<<<<< HEAD
-=======
                 @if (Auth::user()->jabatan == 'Bendahara DKM'|| Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -61,15 +58,10 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-
-                 <!-- Master dropdown -->
-=======
                 @endif
                  <!-- Master dropdown -->
                  @if (Auth::user()->jabatan == 'Bendahara DKM' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                  <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -93,15 +85,10 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-
-                <!-- Master dropdown -->
-=======
                 @endif
                 <!-- Master dropdown -->
                 @if (Auth::user()->jabatan == 'Bendahara DKM' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -125,15 +112,10 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-
-                <!-- Master dropdown -->
-=======
                 @endif
                 <!-- Master dropdown -->
                 @if (Auth::user()->jabatan == 'Administrator' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -151,15 +133,10 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-
-                <!-- Master dropdown -->
-=======
                 @endif
                 <!-- Master dropdown -->
                 @if (Auth::user()->jabatan == 'Administrator' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -177,15 +154,10 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-
-                <!-- Master dropdown -->
-=======
                 @endif
                 <!-- Master dropdown -->
                 @if (Auth::user()->jabatan == 'Bendahara DKM'|| Auth::user()->jabatan == 'Administrator')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
@@ -269,26 +241,15 @@
                         </li>
                     </ul>
                 </li>
-<<<<<<< HEAD
-=======
                 @endif
                 @if (Auth::user()->jabatan == 'Bendahara DKM' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item">
                     <a href="{{ route('sholat.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Sholat</p>
                     </a>
                 </li>
-<<<<<<< HEAD
-                <li class="nav-item">
-                    <a href="{{ route('kajian.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <p>Kajian</p>
-                    </a>
-                </li>
-=======
                 @endif
                 @if (Auth::user()->jabatan == 'Bendahara DKM' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
@@ -301,18 +262,14 @@
                 @endif
                 @if (Auth::user()->jabatan == 'Bendahara DKM' || Auth::user()->jabatan == 'Petugas Qurban')
                 @else
->>>>>>> a4508c7 (zakat)
                 <li class="nav-item">
                     <a href="{{ route('inventories.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Inventori</p>
                     </a>
                 </li>
-<<<<<<< HEAD
 
-=======
                 @endif
->>>>>>> a4508c7 (zakat)
                 <!-- Logout link -->
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

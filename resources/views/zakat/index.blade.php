@@ -71,7 +71,7 @@
             </div>
 
             <!-- Info Beras -->
-            <div class="mb-4 row">
+            {{-- <div class="mb-4 row">
                 <div class="col-lg-6">
                     <div class="info-box bg-gradient-primary">
                         <span class="info-box-icon"><i class="fas fa-balance-scale"></i></span>
@@ -87,7 +87,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Search Bar -->
             <form action="{{ route('zakat.index') }}" method="GET" class="mb-3">

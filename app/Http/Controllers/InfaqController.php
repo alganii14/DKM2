@@ -13,30 +13,6 @@ class InfaqController extends Controller
      * Menampilkan daftar infaq.
      */
     public function index(Request $request)
-<<<<<<< HEAD
-{
-    $query = Infaq::query();
-
-    if ($request->has('search') && $request->search) {
-        $searchTerm = $request->search;
-        $query->where(function ($q) use ($searchTerm) {
-            $q->where('no_penerimaan', 'like', "%$searchTerm%")
-              ->orWhereHas('petugas', function($q) use ($searchTerm) {
-                  $q->where('name', 'like', "%$searchTerm%");
-              })
-              ->orWhereHas('donatur', function($q) use ($searchTerm) {
-                  $q->where('nama', 'like', "%$searchTerm%");
-              })
-              ->orWhere('jenis_penerimaan', 'like', "%$searchTerm%");
-        });
-    }
-
-    $infaqs = $query->get();
-
-    return view('infaq.index', compact('infaqs'));
-}
-
-=======
     {
         $query = Infaq::query();
 
@@ -62,7 +38,6 @@ class InfaqController extends Controller
         return view('infaq.index', compact('infaqs', 'totalInfaq'));
     }
 
->>>>>>> a4508c7 (zakat)
 
     /**
      * Menampilkan form untuk menambah data infaq.

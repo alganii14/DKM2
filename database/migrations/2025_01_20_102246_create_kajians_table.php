@@ -10,20 +10,6 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-<<<<<<< HEAD
-    {
-        Schema::create('kajians', function (Blueprint $table) {
-            $table->id();
-            $table->string('judul_kajian');
-            $table->text('deskripsi_kajian');
-            $table->date('tanggal_kajian');
-            $table->string('foto_kajian');
-            $table->string('foto_ustad');
-            $table->string('nama_ustad');
-            $table->timestamps();
-        });
-    }
-=======
 {
     Schema::create('kajians', function (Blueprint $table) {
         $table->id();
@@ -37,7 +23,6 @@ return new class extends Migration
     });
 }
 
->>>>>>> a4508c7 (zakat)
 
     /**
      * Reverse the migrations.

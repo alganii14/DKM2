@@ -126,8 +126,6 @@
     .inventory-slider::-webkit-scrollbar-track {
         background: #f1f1f1;
     }
-<<<<<<< HEAD
-=======
 
     /* Styles for infaq balance card */
     .infaq-balance-card {
@@ -156,7 +154,6 @@
         font-size: 1rem;
         opacity: 0.9;
     }
->>>>>>> a4508c7 (zakat)
 </style>
 
 
@@ -167,13 +164,8 @@
     <div class="container">
         <div class="text-center heading">
             <img src="{{ asset('masjid/main_files/assets/img/heading-img.png') }}" alt="icon" class="mb-3 img-fluid" style="max-width: 100px;">
-<<<<<<< HEAD
-            <p class="text-uppercase text-muted">Informasi Kajian</p>
-            <h2 class="fw-bold">Segera Hadir Kajian</h2>
-=======
             <p class="text-uppercase text-muted">Informasi Kegiatan</p>
             <h2 class="fw-bold">Kegiatan</h2>
->>>>>>> a4508c7 (zakat)
         </div>
 
         <div class="row">
@@ -186,17 +178,10 @@
                         </figure>
                         <h5 class="fw-bold"><a href="#" class="text-dark">{{ $kajian->judul_kajian }}</a></h5>
                         <p class="text-muted">{{ Str::limit($kajian->deskripsi_kajian, 150) }}</p>
-<<<<<<< HEAD
-                        <div class="blog-man d-flex align-items-center">
-                            <img alt="img" class="me-3 rounded-circle" src="{{ asset('storage/' . $kajian->foto_ustad) }}" style="width: 60px; height: 60px; object-fit: cover;">
-                            <h6 class="mb-0">by <a href="#" class="text-primary">{{ $kajian->nama_ustad }}</a></h6>
-                        </div>
-=======
                         {{-- <div class="blog-man d-flex align-items-center">
                             <img alt="img" class="me-3 rounded-circle" src="{{ asset('storage/' . $kajian->foto_ustad) }}" style="width: 60px; height: 60px; object-fit: cover;">
                             <h6 class="mb-0"><a href="#" class="text-primary">{{ $kajian->nama_ustad }}</a></h6>
                         </div> --}}
->>>>>>> a4508c7 (zakat)
                     </div>
                 </div>
             @endforeach
@@ -242,17 +227,12 @@
             <p class="text-uppercase text-muted">Infaq & Sedekah</p>
             <h2 class="fw-bold">Salurkan Infaq Anda</h2>
         </div>
-<<<<<<< HEAD
-=======
-
         <!-- Total Infaq Balance Card -->
         <div class="infaq-balance-card">
             <h3>Total Saldo Infaq & Sedekah Terkumpul</h3>
             <div class="amount">Rp {{ number_format($totalInfaq, 0, ',', '.') }}</div>
             <p class="description">Dana ini digunakan untuk pembangunan dan operasional masjid. Terima kasih atas kontribusi Anda.</p>
         </div>
-
->>>>>>> a4508c7 (zakat)
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
                 <div class="mb-4 qris-container">
@@ -269,11 +249,8 @@
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
-            <div class="col-lg-6">
-=======
+
             {{-- <div class="col-lg-6">
->>>>>>> a4508c7 (zakat)
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Form Infaq</h3>
@@ -324,11 +301,8 @@
                         </form>
                     </div>
                 </div>
-<<<<<<< HEAD
-            </div>
-=======
+
             </div> --}}
->>>>>>> a4508c7 (zakat)
         </div>
     </div>
 </section>
@@ -367,28 +341,6 @@
 </script>
 <script>
     // Set Tanggal otomatis ke hari ini
-<<<<<<< HEAD
-    document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
-
-    // Set Waktu otomatis ke saat ini dalam format yang benar (HH:mm)
-    let currentTime = new Date().toTimeString().split(' ')[0].substring(0, 5);
-    document.getElementById('waktu').value = currentTime;
-
-    document.getElementById('donatur_id').addEventListener('change', function() {
-        // Ambil data dari pilihan donatur
-        const selectedOption = this.options[this.selectedIndex];
-        const telp = selectedOption.getAttribute('data-telp');
-        const pekerjaan = selectedOption.getAttribute('data-pekerjaan');
-        const alamat = selectedOption.getAttribute('data-alamat');
-
-        // Masukkan data ke input form
-        // Note: These fields are not in the form, so you might want to add them or remove this part
-        // document.getElementById('no_telp').value = telp;
-        // document.getElementById('pekerjaan').value = pekerjaan;
-        // document.getElementById('alamat').value = alamat;
-    });
-</script>
-=======
     document.addEventListener('DOMContentLoaded', function() {
         if(document.getElementById('tanggal')) {
             document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
@@ -418,4 +370,3 @@
     });
 </script>
 
->>>>>>> a4508c7 (zakat)

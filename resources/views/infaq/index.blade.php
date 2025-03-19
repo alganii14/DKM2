@@ -18,9 +18,6 @@
                 </button>
             </div>
             @endif
-
-<<<<<<< HEAD
-=======
             <!-- Total Infaq Balance Card -->
             <div class="card bg-success mb-3">
                 <div class="card-body">
@@ -28,8 +25,6 @@
                     <h2 class="card-text">Rp {{ number_format($totalInfaq, 0, ',', '.') }}</h2>
                 </div>
             </div>
-
->>>>>>> a4508c7 (zakat)
             <!-- Search Bar -->
             <form action="{{ route('infaq.index') }}" method="GET" class="mb-3">
                 <div class="input-group">
@@ -98,7 +93,5 @@
     </section>
 </div>
 @endsection
-<<<<<<< HEAD
-=======
 
->>>>>>> a4508c7 (zakat)
+

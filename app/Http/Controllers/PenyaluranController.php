@@ -15,13 +15,10 @@ class PenyaluranController extends Controller
     public function index()
     {
         $penyalurans = Penyaluran::with('penerimas')->get();
-<<<<<<< HEAD
-        return view('penyaluran.index', compact('penyalurans'));
-=======
 
         // Hitung total per jenis zakat (uang)
         $zakats = Zakat::all();
-        $totalZakatFitrah = $zakats->where('jenis_zakat', 'Zakat Fitrah')
+        $totalZakatFitrahUang = $zakats->where('jenis_zakat', 'Zakat Fitrah')
             ->where('jenis_bayar', 'uang')
             ->sum('jumlah_zakat');
 
@@ -31,22 +28,62 @@ class PenyaluranController extends Controller
         $totalZakatFidyah = $zakats->where('jenis_zakat', 'Zakat Fidyah')
             ->sum('jumlah_zakat');
 
-        // Hitung total beras
-        $totalBeras = $zakats->where('jenis_bayar', 'beras')
+        // Hitung total beras dari tabel zakat
+        $totalBerasMasuk = $zakats->where('jenis_bayar', 'beras')
             ->sum('berat_beras');
 
-        // Hitung total penyaluran per jenis zakat
-        $penyaluranZakatFitrah = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('total_penyaluran');
+        // Hitung total penyaluran per jenis zakat (uang)
+        $penyaluranZakatFitrahUang = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('total_penyaluran');
         $penyaluranZakatMal = Penyaluran::where('jenis_zakat', 'Zakat Mal')->sum('total_penyaluran');
         $penyaluranZakatFidyah = Penyaluran::where('jenis_zakat', 'Zakat Fidyah')->sum('total_penyaluran');
 
-        // Kurangi saldo dengan penyaluran
-        $totalZakatFitrah -= $penyaluranZakatFitrah;
-        $totalZakatMal -= $penyaluranZakatMal;
-        $totalZakatFidyah -= $penyaluranZakatFidyah;
+        // Hitung total penyaluran beras
+        // Jika kolom beras_disalurkan belum ada, gunakan perhitungan dari jumlah_terima
+        $totalBerasKeluar = 0;
 
-        // Total saldo keseluruhan (uang + nilai beras) setelah dikurangi penyaluran
-        $totalSaldo = $totalZakatFitrah + $totalZakatMal + $totalZakatFidyah + ($totalBeras * 14000);
+        // Cek apakah kolom beras_disalurkan ada di tabel
+        $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
+
+        if ($hasBerasDisalurkanColumn) {
+            $totalBerasKeluar = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('beras_disalurkan');
+        } else {
+            // Jika kolom tidak ada, hitung dari jumlah_terima
+            $totalBerasKeluar = DB::table('penyaluran_penerimas')
+                ->join('penyalurans', 'penyaluran_penerimas.no_penyaluran', '=', 'penyalurans.no_penyaluran')
+                ->where('penyalurans.jenis_zakat', 'Zakat Fitrah')
+                ->sum(DB::raw('penyaluran_penerimas.jumlah_terima / 14000'));
+        }
+
+        // Hitung sisa beras
+        $totalBeras = $totalBerasMasuk - $totalBerasKeluar;
+        if ($totalBeras < 0) $totalBeras = 0;
+
+        // Nilai beras dalam bentuk uang
+        $nilaiBerasZakatFitrah = $totalBeras * 14000;
+
+        // Total Zakat Fitrah (uang + nilai beras)
+        $totalZakatFitrah = $totalZakatFitrahUang + $nilaiBerasZakatFitrah;
+
+        // Kurangi saldo uang dengan penyaluran
+        $totalZakatFitrahUang -= $penyaluranZakatFitrahUang;
+        if ($totalZakatFitrahUang < 0) {
+            // Jika saldo uang minus, kurangi dari nilai beras
+            $nilaiBerasZakatFitrah += $totalZakatFitrahUang; // Tambahkan nilai negatif
+            $totalZakatFitrahUang = 0;
+        }
+
+        // Recalculate total zakat fitrah
+        $totalZakatFitrah = $totalZakatFitrahUang + $nilaiBerasZakatFitrah;
+        if ($totalZakatFitrah < 0) $totalZakatFitrah = 0;
+
+        $totalZakatMal -= $penyaluranZakatMal;
+        if ($totalZakatMal < 0) $totalZakatMal = 0;
+
+        $totalZakatFidyah -= $penyaluranZakatFidyah;
+        if ($totalZakatFidyah < 0) $totalZakatFidyah = 0;
+
+        // Total saldo keseluruhan setelah dikurangi penyaluran
+        $totalSaldo = $totalZakatFitrah + $totalZakatMal + $totalZakatFidyah;
 
         return view('penyaluran.index', compact(
             'penyalurans',
@@ -56,7 +93,6 @@ class PenyaluranController extends Controller
             'totalZakatFidyah',
             'totalBeras'
         ));
->>>>>>> a4508c7 (zakat)
     }
 
     public function create()
@@ -70,9 +106,6 @@ class PenyaluranController extends Controller
         $mustahiks = Mustahik::all();
         $jenis_zakats = Zakat::distinct()->pluck('jenis_zakat');
 
-<<<<<<< HEAD
-        return view('penyaluran.create', compact('no_penyaluran', 'mustahiks', 'jenis_zakats'));
-=======
         // Hitung saldo per jenis zakat (uang)
         $zakats = Zakat::all();
 
@@ -82,9 +115,27 @@ class PenyaluranController extends Controller
             ->sum('jumlah_zakat');
 
         // Zakat Fitrah - Beras (dalam kg)
-        $saldoZakatFitrahBeras = $zakats->where('jenis_zakat', 'Zakat Fitrah')
+        $totalBerasMasuk = $zakats->where('jenis_zakat', 'Zakat Fitrah')
             ->where('jenis_bayar', 'beras')
             ->sum('berat_beras');
+
+        // Hitung total penyaluran beras
+        $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
+
+        $totalBerasKeluar = 0;
+        if ($hasBerasDisalurkanColumn) {
+            $totalBerasKeluar = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('beras_disalurkan');
+        } else {
+            // Jika kolom tidak ada, hitung dari jumlah_terima
+            $totalBerasKeluar = DB::table('penyaluran_penerimas')
+                ->join('penyalurans', 'penyaluran_penerimas.no_penyaluran', '=', 'penyalurans.no_penyaluran')
+                ->where('penyalurans.jenis_zakat', 'Zakat Fitrah')
+                ->sum(DB::raw('penyaluran_penerimas.jumlah_terima / 14000'));
+        }
+
+        // Hitung sisa beras
+        $saldoZakatFitrahBeras = $totalBerasMasuk - $totalBerasKeluar;
+        if ($saldoZakatFitrahBeras < 0) $saldoZakatFitrahBeras = 0;
 
         // Nilai beras dalam bentuk uang
         $nilaiBerasZakatFitrah = $saldoZakatFitrahBeras * 14000;
@@ -97,20 +148,20 @@ class PenyaluranController extends Controller
         $saldoZakatFidyah = $zakats->where('jenis_zakat', 'Zakat Fidyah')
             ->sum('jumlah_zakat');
 
-        // Hitung total penyaluran per jenis zakat
+        // Hitung total penyaluran per jenis zakat (uang)
         $penyaluranZakatFitrah = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('total_penyaluran');
         $penyaluranZakatMal = Penyaluran::where('jenis_zakat', 'Zakat Mal')->sum('total_penyaluran');
         $penyaluranZakatFidyah = Penyaluran::where('jenis_zakat', 'Zakat Fidyah')->sum('total_penyaluran');
 
-        // Kurangi saldo dengan penyaluran
-        // Untuk Zakat Fitrah, kurangi dari uang dulu, baru dari beras jika uang tidak cukup
-        if ($penyaluranZakatFitrah <= $saldoZakatFitrahUang) {
-            $saldoZakatFitrahUang -= $penyaluranZakatFitrah;
-        } else {
-            $sisaPenyaluran = $penyaluranZakatFitrah - $saldoZakatFitrahUang;
-            $saldoZakatFitrahUang = 0;
-            $nilaiBerasZakatFitrah -= $sisaPenyaluran;
+        // Kurangi saldo uang dengan penyaluran
+        $saldoZakatFitrahUang -= $penyaluranZakatFitrah;
+        if ($saldoZakatFitrahUang < 0) {
+            // Jika saldo uang minus, kurangi dari nilai beras
+            $nilaiBerasZakatFitrah += $saldoZakatFitrahUang; // Tambahkan nilai negatif
             if ($nilaiBerasZakatFitrah < 0) $nilaiBerasZakatFitrah = 0;
+            $saldoZakatFitrahUang = 0;
+
+            // Recalculate beras
             $saldoZakatFitrahBeras = $nilaiBerasZakatFitrah / 14000;
         }
 
@@ -148,7 +199,6 @@ class PenyaluranController extends Controller
             'jenis_zakats',
             'saldoPerJenisZakat'
         ));
->>>>>>> a4508c7 (zakat)
     }
 
     public function store(Request $request)
@@ -163,107 +213,120 @@ class PenyaluranController extends Controller
             'penerimas' => 'required|array',
             'penerimas.*.no_mustahik' => 'required|exists:mustahiks,no_mustahik',
             'penerimas.*.jumlah_terima' => 'required|integer',
-<<<<<<< HEAD
         ]);
 
-=======
-            'penerimas.*.jenis_terima' => 'required|in:uang,beras',
-            'penerimas.*.jumlah_beras' => 'nullable|numeric',
-        ]);
-
-        // Validasi saldo mencukupi
         $jenisZakat = $request->jenis_zakat;
         $totalPenyaluran = $request->total_penyaluran;
 
         // Hitung saldo tersedia
         $zakats = Zakat::all();
         $saldoZakat = 0;
-        $saldoUang = 0;
-        $saldoBeras = 0;
 
         if ($jenisZakat === 'Zakat Fitrah') {
             $saldoUang = $zakats->where('jenis_zakat', 'Zakat Fitrah')
                 ->where('jenis_bayar', 'uang')
                 ->sum('jumlah_zakat');
 
-            $saldoBeras = $zakats->where('jenis_zakat', 'Zakat Fitrah')
-                ->where('jenis_bayar', 'beras')
+            // Hitung total beras dari tabel zakat
+            $totalBerasMasuk = $zakats->where('jenis_bayar', 'beras')
                 ->sum('berat_beras');
 
-            $saldoZakat = $saldoUang + ($saldoBeras * 14000);
+            // Hitung total penyaluran beras
+            $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
+
+            $totalBerasKeluar = 0;
+            if ($hasBerasDisalurkanColumn) {
+                $totalBerasKeluar = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')->sum('beras_disalurkan');
+            } else {
+                // Jika kolom tidak ada, hitung dari jumlah_terima
+                $totalBerasKeluar = DB::table('penyaluran_penerimas')
+                    ->join('penyalurans', 'penyaluran_penerimas.no_penyaluran', '=', 'penyalurans.no_penyaluran')
+                    ->where('penyalurans.jenis_zakat', 'Zakat Fitrah')
+                    ->sum(DB::raw('penyaluran_penerimas.jumlah_terima / 14000'));
+            }
+
+            // Hitung sisa beras
+            $saldoBeras = $totalBerasMasuk - $totalBerasKeluar;
+            if ($saldoBeras < 0) $saldoBeras = 0;
+
+            $nilaiBerasSaldo = $saldoBeras * 14000;
+
+            $saldoZakat = $saldoUang + $nilaiBerasSaldo;
         } elseif ($jenisZakat === 'Zakat Mal') {
-            $saldoUang = $zakats->where('jenis_zakat', 'Zakat Mal')
+            $saldoZakat = $zakats->where('jenis_zakat', 'Zakat Mal')
                 ->sum('jumlah_zakat');
-            $saldoZakat = $saldoUang;
         } elseif ($jenisZakat === 'Zakat Fidyah') {
-            $saldoUang = $zakats->where('jenis_zakat', 'Zakat Fidyah')
+            $saldoZakat = $zakats->where('jenis_zakat', 'Zakat Fidyah')
                 ->sum('jumlah_zakat');
-            $saldoZakat = $saldoUang;
         }
 
         // Kurangi dengan penyaluran yang sudah ada
         $penyaluranSebelumnya = Penyaluran::where('jenis_zakat', $jenisZakat)->sum('total_penyaluran');
         $saldoZakat -= $penyaluranSebelumnya;
 
-        // Hitung total yang akan disalurkan (97.5% dari total_penyaluran)
-        $totalDisalurkan = $totalPenyaluran * 0.975; // 97.5% dari total
+        // Hitung total yang akan disalurkan (tanpa memperhitungkan sisa 2.5%)
+        $totalJumlahTerima = 0;
+        foreach ($request->penerimas as $penerima) {
+            $totalJumlahTerima += $penerima['jumlah_terima'];
+        }
 
-        // Cek saldo mencukupi
-        if ($totalDisalurkan > $saldoZakat) {
+        // Cek saldo mencukupi untuk jumlah yang akan disalurkan
+        if ($totalJumlahTerima > $saldoZakat) {
             return back()->with('error', 'Saldo zakat tidak mencukupi untuk penyaluran ini.');
         }
 
-        // Hitung total beras yang dibutuhkan
+        // Hitung total beras yang akan disalurkan (dalam kg)
         $totalBerasDisalurkan = 0;
-        foreach ($request->penerimas as $penerima) {
-            if (isset($penerima['jenis_terima']) && $penerima['jenis_terima'] === 'beras') {
-                $totalBerasDisalurkan += isset($penerima['jumlah_beras']) ? (float)$penerima['jumlah_beras'] : 0;
-            }
+        if ($jenisZakat === 'Zakat Fitrah') {
+            $totalBerasDisalurkan = $totalJumlahTerima / 14000;
         }
 
-        // Cek saldo beras mencukupi
-        if ($totalBerasDisalurkan > $saldoBeras) {
-            return back()->with('error', 'Saldo beras tidak mencukupi untuk penyaluran ini.');
-        }
-
->>>>>>> a4508c7 (zakat)
         DB::beginTransaction();
         try {
-            // Create penyaluran
-            $penyaluran = Penyaluran::create([
+            // Cek apakah kolom beras_disalurkan ada di tabel
+            $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
+
+            // Buat array data penyaluran
+            $penyaluranData = [
                 'no_penyaluran' => $request->no_penyaluran,
                 'tanggal_penyaluran' => $request->tanggal_penyaluran,
                 'jam_penyaluran' => $request->jam_penyaluran,
                 'petugas_penyaluran' => Auth::user()->name,
                 'jenis_zakat' => $request->jenis_zakat,
-<<<<<<< HEAD
-                'total_penyaluran' => $request->total_penyaluran,
-=======
-                'total_penyaluran' => $totalDisalurkan, // Hanya 97.5% yang disalurkan
->>>>>>> a4508c7 (zakat)
+                'total_penyaluran' => $totalJumlahTerima, // Hanya menyimpan jumlah yang benar-benar disalurkan
                 'status_penyaluran' => $request->status_penyaluran,
                 'keterangan' => $request->keterangan,
-            ]);
+            ];
+
+            // Tambahkan beras_disalurkan jika kolom ada
+            if ($hasBerasDisalurkanColumn) {
+                $penyaluranData['beras_disalurkan'] = $totalBerasDisalurkan;
+            }
+
+            // Buat record penyaluran
+            $penyaluran = Penyaluran::create($penyaluranData);
+
+            // Cek apakah kolom beras_terima ada di tabel
+            $hasBerasTerimaColumn = DB::getSchemaBuilder()->hasColumn('penyaluran_penerimas', 'beras_terima');
 
             // Create penerimas
             foreach ($request->penerimas as $penerima) {
-<<<<<<< HEAD
-=======
-                $jenisTerima = $penerima['jenis_terima'] ?? 'uang';
-                $jumlahBeras = isset($penerima['jumlah_beras']) ? (float)$penerima['jumlah_beras'] : 0;
+                $jumlahTerima = $penerima['jumlah_terima'];
+                $berasTerima = $jumlahTerima / 14000; // Konversi ke kg beras
 
->>>>>>> a4508c7 (zakat)
-                PenyaluranPenerima::create([
+                $penerimaData = [
                     'no_penyaluran' => $penyaluran->no_penyaluran,
                     'no_mustahik' => $penerima['no_mustahik'],
-                    'jumlah_terima' => $penerima['jumlah_terima'],
-<<<<<<< HEAD
-=======
-                    'jenis_terima' => $jenisTerima,
-                    'jumlah_beras' => $jenisTerima === 'beras' ? $jumlahBeras : 0,
->>>>>>> a4508c7 (zakat)
+                    'jumlah_terima' => $jumlahTerima,
                     'status_penerima' => 'Diterima'
-                ]);
+                ];
+
+                // Tambahkan beras_terima jika kolom ada
+                if ($hasBerasTerimaColumn) {
+                    $penerimaData['beras_terima'] = $berasTerima;
+                }
+
+                PenyaluranPenerima::create($penerimaData);
             }
 
             DB::commit();
@@ -271,11 +334,7 @@ class PenyaluranController extends Controller
                            ->with('success', 'Data penyaluran zakat berhasil ditambahkan');
         } catch (\Exception $e) {
             DB::rollback();
-<<<<<<< HEAD
-            return back()->with('error', 'Terjadi kesalahan saat menyimpan data');
-=======
             return back()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
->>>>>>> a4508c7 (zakat)
         }
     }
 
@@ -297,45 +356,67 @@ class PenyaluranController extends Controller
             'penerimas' => 'required|array',
             'penerimas.*.no_mustahik' => 'required|exists:mustahiks,no_mustahik',
             'penerimas.*.jumlah_terima' => 'required|integer',
-<<<<<<< HEAD
         ]);
 
-        DB::beginTransaction();
-        try {
-=======
-            'penerimas.*.jenis_terima' => 'required|in:uang,beras',
-            'penerimas.*.jumlah_beras' => 'nullable|numeric',
-        ]);
+        // Hitung total yang akan disalurkan (tanpa memperhitungkan sisa 2.5%)
+        $totalJumlahTerima = 0;
+        foreach ($request->penerimas as $penerima) {
+            $totalJumlahTerima += $penerima['jumlah_terima'];
+        }
+
+        // Hitung total beras yang akan disalurkan (dalam kg)
+        $totalBerasDisalurkan = 0;
+        if ($request->jenis_zakat === 'Zakat Fitrah') {
+            $totalBerasDisalurkan = $totalJumlahTerima / 14000;
+        }
 
         // Validasi saldo mencukupi jika ada perubahan jumlah atau jenis zakat
-        if ($penyaluran->jenis_zakat !== $request->jenis_zakat || $penyaluran->total_penyaluran !== $request->total_penyaluran) {
+        if ($penyaluran->jenis_zakat !== $request->jenis_zakat || $penyaluran->total_penyaluran !== $totalJumlahTerima) {
             $jenisZakat = $request->jenis_zakat;
-            $totalPenyaluran = $request->total_penyaluran;
 
             // Hitung saldo tersedia
             $zakats = Zakat::all();
             $saldoZakat = 0;
-            $saldoUang = 0;
-            $saldoBeras = 0;
 
             if ($jenisZakat === 'Zakat Fitrah') {
                 $saldoUang = $zakats->where('jenis_zakat', 'Zakat Fitrah')
                     ->where('jenis_bayar', 'uang')
                     ->sum('jumlah_zakat');
 
-                $saldoBeras = $zakats->where('jenis_zakat', 'Zakat Fitrah')
-                    ->where('jenis_bayar', 'beras')
+                // Hitung total beras dari tabel zakat
+                $totalBerasMasuk = $zakats->where('jenis_bayar', 'beras')
                     ->sum('berat_beras');
 
-                $saldoZakat = $saldoUang + ($saldoBeras * 14000);
+                // Hitung total penyaluran beras
+                $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
+
+                $totalBerasKeluar = 0;
+                if ($hasBerasDisalurkanColumn) {
+                    $totalBerasKeluar = Penyaluran::where('jenis_zakat', 'Zakat Fitrah')
+                        ->where('no_penyaluran', '!=', $penyaluran->no_penyaluran)
+                        ->sum('beras_disalurkan');
+                } else {
+                    // Jika kolom tidak ada, hitung dari jumlah_terima
+                    $totalBerasKeluar = DB::table('penyaluran_penerimas')
+                        ->join('penyalurans', 'penyaluran_penerimas.no_penyaluran', '=', 'penyalurans.no_penyaluran')
+                        ->where('penyalurans.jenis_zakat', 'Zakat Fitrah')
+                        ->where('penyalurans.no_penyaluran', '!=', $penyaluran->no_penyaluran)
+                        ->sum(DB::raw('penyaluran_penerimas.jumlah_terima / 14000'));
+                }
+
+                // Hitung sisa beras
+                $saldoBeras = $totalBerasMasuk - $totalBerasKeluar;
+                if ($saldoBeras < 0) $saldoBeras = 0;
+
+                $nilaiBerasSaldo = $saldoBeras * 14000;
+
+                $saldoZakat = $saldoUang + $nilaiBerasSaldo;
             } elseif ($jenisZakat === 'Zakat Mal') {
-                $saldoUang = $zakats->where('jenis_zakat', 'Zakat Mal')
+                $saldoZakat = $zakats->where('jenis_zakat', 'Zakat Mal')
                     ->sum('jumlah_zakat');
-                $saldoZakat = $saldoUang;
             } elseif ($jenisZakat === 'Zakat Fidyah') {
-                $saldoUang = $zakats->where('jenis_zakat', 'Zakat Fidyah')
+                $saldoZakat = $zakats->where('jenis_zakat', 'Zakat Fidyah')
                     ->sum('jumlah_zakat');
-                $saldoZakat = $saldoUang;
             }
 
             // Kurangi dengan penyaluran yang sudah ada (kecuali penyaluran yang sedang diedit)
@@ -344,69 +425,59 @@ class PenyaluranController extends Controller
                 ->sum('total_penyaluran');
             $saldoZakat -= $penyaluranSebelumnya;
 
-            // Hitung total yang akan disalurkan (97.5% dari total_penyaluran)
-            $totalDisalurkan = $totalPenyaluran * 0.975; // 97.5% dari total
-
             // Cek saldo mencukupi
-            if ($totalDisalurkan > $saldoZakat) {
+            if ($totalJumlahTerima > $saldoZakat) {
                 return back()->with('error', 'Saldo zakat tidak mencukupi untuk penyaluran ini.');
-            }
-
-            // Hitung total beras yang dibutuhkan
-            $totalBerasDisalurkan = 0;
-            foreach ($request->penerimas as $penerima) {
-                if (isset($penerima['jenis_terima']) && $penerima['jenis_terima'] === 'beras') {
-                    $totalBerasDisalurkan += isset($penerima['jumlah_beras']) ? (float)$penerima['jumlah_beras'] : 0;
-                }
-            }
-
-            // Cek saldo beras mencukupi
-            if ($totalBerasDisalurkan > $saldoBeras) {
-                return back()->with('error', 'Saldo beras tidak mencukupi untuk penyaluran ini.');
             }
         }
 
         DB::beginTransaction();
         try {
-            // Hitung total yang akan disalurkan (97.5% dari total_penyaluran)
-            $totalDisalurkan = $request->total_penyaluran * 0.975; // 97.5% dari total
+            // Cek apakah kolom beras_disalurkan ada di tabel
+            $hasBerasDisalurkanColumn = DB::getSchemaBuilder()->hasColumn('penyalurans', 'beras_disalurkan');
 
->>>>>>> a4508c7 (zakat)
-            $penyaluran->update([
+            // Buat array data penyaluran
+            $penyaluranData = [
                 'tanggal_penyaluran' => $request->tanggal_penyaluran,
                 'jam_penyaluran' => $request->jam_penyaluran,
                 'jenis_zakat' => $request->jenis_zakat,
-<<<<<<< HEAD
-                'total_penyaluran' => $request->total_penyaluran,
-=======
-                'total_penyaluran' => $totalDisalurkan, // Hanya 97.5% yang disalurkan
->>>>>>> a4508c7 (zakat)
+                'total_penyaluran' => $totalJumlahTerima,
                 'status_penyaluran' => $request->status_penyaluran,
                 'keterangan' => $request->keterangan,
-            ]);
+            ];
+
+            // Tambahkan beras_disalurkan jika kolom ada
+            if ($hasBerasDisalurkanColumn) {
+                $penyaluranData['beras_disalurkan'] = $totalBerasDisalurkan;
+            }
+
+            // Update record penyaluran
+            $penyaluran->update($penyaluranData);
 
             // Delete existing penerimas
             $penyaluran->penerimas()->delete();
 
+            // Cek apakah kolom beras_terima ada di tabel
+            $hasBerasTerimaColumn = DB::getSchemaBuilder()->hasColumn('penyaluran_penerimas', 'beras_terima');
+
             // Create new penerimas
             foreach ($request->penerimas as $penerima) {
-<<<<<<< HEAD
-=======
-                $jenisTerima = $penerima['jenis_terima'] ?? 'uang';
-                $jumlahBeras = isset($penerima['jumlah_beras']) ? (float)$penerima['jumlah_beras'] : 0;
+                $jumlahTerima = $penerima['jumlah_terima'];
+                $berasTerima = $jumlahTerima / 14000; // Konversi ke kg beras
 
->>>>>>> a4508c7 (zakat)
-                PenyaluranPenerima::create([
+                $penerimaData = [
                     'no_penyaluran' => $penyaluran->no_penyaluran,
                     'no_mustahik' => $penerima['no_mustahik'],
-                    'jumlah_terima' => $penerima['jumlah_terima'],
-<<<<<<< HEAD
-=======
-                    'jenis_terima' => $jenisTerima,
-                    'jumlah_beras' => $jenisTerima === 'beras' ? $jumlahBeras : 0,
->>>>>>> a4508c7 (zakat)
+                    'jumlah_terima' => $jumlahTerima,
                     'status_penerima' => 'Diterima'
-                ]);
+                ];
+
+                // Tambahkan beras_terima jika kolom ada
+                if ($hasBerasTerimaColumn) {
+                    $penerimaData['beras_terima'] = $berasTerima;
+                }
+
+                PenyaluranPenerima::create($penerimaData);
             }
 
             DB::commit();
@@ -414,11 +485,7 @@ class PenyaluranController extends Controller
                            ->with('success', 'Data penyaluran zakat berhasil diperbarui');
         } catch (\Exception $e) {
             DB::rollback();
-<<<<<<< HEAD
-            return back()->with('error', 'Terjadi kesalahan saat memperbarui data');
-=======
             return back()->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage());
->>>>>>> a4508c7 (zakat)
         }
     }
 
