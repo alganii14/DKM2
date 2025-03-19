@@ -58,9 +58,6 @@
                                 <option value="">Pilih Jabatan</option>
                                 <option value="Bendahara DKM" {{ old('jabatan') == 'Bendahara DKM' ? 'selected' : '' }}>
                                     Bendahara DKM</option>
-                                <option value="Koordinator Bidang Pemberdayaan ZISWAF"
-                                    {{ old('jabatan') == 'Koordinator Bidang Pemberdayaan ZISWAF' ? 'selected' : '' }}>
-                                    Koordinator Bidang Pemberdayaan ZISWAF</option>
                                 <option value="Petugas Qurban"
                                     {{ old('jabatan') == 'Petugas Qurban' ? 'selected' : '' }}>
                                     Petugas Qurban</option>
