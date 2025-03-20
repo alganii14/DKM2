@@ -89,11 +89,31 @@
                                 <h3 class="card-title">Kalkulator Penyaluran Zakat</h3>
                             </div>
                             <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="persentase_fakir_miskin">Persentase Fakir/Miskin (%)</label>
+                                            <input type="number" class="form-control" id="persentase_fakir_miskin" name="persentase_fakir_miskin" value="65" min="0" max="100" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="persentase_amilin">Persentase Amilin (%)</label>
+                                            <input type="number" class="form-control" id="persentase_amilin" name="persentase_amilin" value="32.5" min="0" max="100" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="persentase_sisa">Persentase Sisa (%)</label>
+                                            <input type="number" class="form-control" id="persentase_sisa" name="persentase_sisa" value="2.5" min="0" max="100" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-content">
-                                                <span class="info-box-text">Bagian Fakir/Miskin (65%)</span>
+                                                <span class="info-box-text">Bagian Fakir/Miskin (<span id="persen_fakir_miskin">65</span>%)</span>
                                                 <span class="info-box-number" id="bagianFakirMiskin">0</span>
                                                 <div id="bagianFakirMiskinBeras" style="display: none;">
                                                     <small>Setara dengan: <span id="berasFakirMiskin">0</span> kg beras</small>
@@ -108,7 +128,7 @@
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-content">
-                                                <span class="info-box-text">Bagian Amilin (32.5%)</span>
+                                                <span class="info-box-text">Bagian Amilin (<span id="persen_amilin">32.5</span>%)</span>
                                                 <span class="info-box-number" id="bagianAmilin">0</span>
                                                 <div id="bagianAmilinBeras" style="display: none;">
                                                     <small>Setara dengan: <span id="berasAmilin">0</span> kg beras</small>
@@ -119,7 +139,7 @@
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-content">
-                                                <span class="info-box-text">Sisa Zakat (2.5%)</span>
+                                                <span class="info-box-text">Sisa Zakat (<span id="persen_sisa">2.5</span>%)</span>
                                                 <span class="info-box-number" id="sisaZakat">0</span>
                                                 <div id="sisaZakatBeras" style="display: none;">
                                                     <small>Setara dengan: <span id="berasSisaZakat">0</span> kg beras</small>
@@ -195,6 +215,59 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('input[name="tanggal_penyaluran"]').value = new Date().toISOString().split('T')[0];
     document.querySelector('input[name="jam_penyaluran"]').value = new Date().toLocaleTimeString('en-GB').slice(0, 5);
 
+    // Validasi persentase agar total selalu 100%
+    function validatePercentages() {
+        const persentaseFakirMiskin = parseFloat(document.getElementById('persentase_fakir_miskin').value) || 0;
+        const persentaseAmilin = parseFloat(document.getElementById('persentase_amilin').value) || 0;
+        const persentaseSisa = parseFloat(document.getElementById('persentase_sisa').value) || 0;
+
+        const total = persentaseFakirMiskin + persentaseAmilin + persentaseSisa;
+
+        // Update display
+        document.getElementById('persen_fakir_miskin').textContent = persentaseFakirMiskin.toFixed(1);
+        document.getElementById('persen_amilin').textContent = persentaseAmilin.toFixed(1);
+        document.getElementById('persen_sisa').textContent = persentaseSisa.toFixed(1);
+
+        // Recalculate distribution
+        calculateDistribution();
+
+        return total === 100;
+    }
+
+    // Add event listeners for percentage inputs
+    document.getElementById('persentase_fakir_miskin').addEventListener('input', function() {
+        const persentaseFakirMiskin = parseFloat(this.value) || 0;
+        const persentaseAmilin = parseFloat(document.getElementById('persentase_amilin').value) || 0;
+
+        // Auto-adjust sisa to make total 100%
+        const persentaseSisa = 100 - persentaseFakirMiskin - persentaseAmilin;
+        document.getElementById('persentase_sisa').value = Math.max(0, persentaseSisa.toFixed(1));
+
+        validatePercentages();
+    });
+
+    document.getElementById('persentase_amilin').addEventListener('input', function() {
+        const persentaseFakirMiskin = parseFloat(document.getElementById('persentase_fakir_miskin').value) || 0;
+        const persentaseAmilin = parseFloat(this.value) || 0;
+
+        // Auto-adjust sisa to make total 100%
+        const persentaseSisa = 100 - persentaseFakirMiskin - persentaseAmilin;
+        document.getElementById('persentase_sisa').value = Math.max(0, persentaseSisa.toFixed(1));
+
+        validatePercentages();
+    });
+
+    document.getElementById('persentase_sisa').addEventListener('input', function() {
+        const persentaseFakirMiskin = parseFloat(document.getElementById('persentase_fakir_miskin').value) || 0;
+        const persentaseSisa = parseFloat(this.value) || 0;
+
+        // Auto-adjust amilin to make total 100%
+        const persentaseAmilin = 100 - persentaseFakirMiskin - persentaseSisa;
+        document.getElementById('persentase_amilin').value = Math.max(0, persentaseAmilin.toFixed(1));
+
+        validatePercentages();
+    });
+
     // Auto-fill total_penyaluran when jenis_zakat changes
     document.getElementById('jenis_zakat').addEventListener('change', function() {
         const jenisZakat = this.value;
@@ -242,10 +315,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculateDistribution() {
         const totalPenyaluran = parseFloat(document.getElementById('total_penyaluran').value) || 0;
 
-        // Calculate portions with new percentages
-        const bagianFakirMiskin = totalPenyaluran * 0.65;  // 65%
-        const bagianAmilin = totalPenyaluran * 0.325;      // 32.5%
-        const sisaZakat = totalPenyaluran * 0.025;         // 2.5%
+        // Get percentages from inputs
+        const persentaseFakirMiskin = parseFloat(document.getElementById('persentase_fakir_miskin').value) / 100 || 0.65;
+        const persentaseAmilin = parseFloat(document.getElementById('persentase_amilin').value) / 100 || 0.325;
+        const persentaseSisa = parseFloat(document.getElementById('persentase_sisa').value) / 100 || 0.025;
+
+        // Calculate portions with configurable percentages
+        const bagianFakirMiskin = totalPenyaluran * persentaseFakirMiskin;
+        const bagianAmilin = totalPenyaluran * persentaseAmilin;
+        const sisaZakat = totalPenyaluran * persentaseSisa;
 
         // Simpan data distribusi
         distributionData.fakirMiskin = bagianFakirMiskin;
@@ -313,6 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const select = row.querySelector('.mustahik-select');
             const jumlahInput = row.querySelector('input[name$="[jumlah_terima]"]');
             const berasInfoDiv = row.querySelector('.beras-info');
+            const jenisTerimaSelect = row.querySelector('select[name$="[jenis_terima]"]');
 
             if (select.value) {
                 const mustahik = mustahikData.find(m => m.no_mustahik === select.value);
@@ -341,8 +420,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (hasBeras && berasInfoDiv) {
                         berasInfoDiv.style.display = 'block';
                         berasInfoDiv.querySelector('.beras-equivalent').textContent = berasEquivalent.toFixed(2);
+
+                        // Jika ada select jenis_terima, tampilkan opsi beras
+                        if (jenisTerimaSelect) {
+                            jenisTerimaSelect.innerHTML = `
+                                <option value="uang">Uang</option>
+                                <option value="beras">Beras</option>
+                            `;
+                        }
                     } else if (berasInfoDiv) {
                         berasInfoDiv.style.display = 'none';
+
+                        // Jika ada select jenis_terima, hanya tampilkan opsi uang
+                        if (jenisTerimaSelect) {
+                            jenisTerimaSelect.innerHTML = '<option value="uang">Uang</option>';
+                        }
                     }
                 } else {
                     console.log('Mustahik not found for:', select.value);
@@ -392,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('div');
         row.className = 'row mb-3';
         row.innerHTML = `
-            <div class="col-md-5">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>Mustahik</label>
                     <select class="form-control mustahik-select" name="penerimas[${counter}][no_mustahik]" required>
@@ -406,13 +498,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     </select>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <div class="form-group">
                     <label>Jumlah Terima</label>
                     <input type="number" class="form-control jumlah-terima" name="penerimas[${counter}][jumlah_terima]" required>
                     <div class="beras-info mt-1" style="display: none;">
                         <small class="text-muted">Setara dengan <span class="beras-equivalent">0</span> kg beras</small>
                     </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Jenis Terima</label>
+                    <select class="form-control" name="penerimas[${counter}][jenis_terima]" required>
+                        <option value="uang">Uang</option>
+                    </select>
                 </div>
             </div>
             <div class="col-md-2">
@@ -488,7 +588,16 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             alert('Minimal harus ada satu Penerima Zakat!');
         }
+
+        // Validate percentages
+        if (!validatePercentages()) {
+            e.preventDefault();
+            alert('Total persentase harus 100%!');
+        }
     });
+
+    // Initialize percentages
+    validatePercentages();
 });
 </script>
 @endsection
