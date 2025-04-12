@@ -15,10 +15,15 @@ class Infaq extends Model
         'no_penerimaan',
         'tanggal',
         'waktu',
-        'petugas_id',
         'donatur_id',
         'jenis_penerimaan',
         'jumlah',
+        'status',
+        'snap_token',
+        'payment_type',
+        'transaction_id',
+        'transaction_time',
+        'transaction_status'
     ];
 
     /**

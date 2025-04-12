@@ -234,42 +234,15 @@
             <p class="description">Dana ini digunakan untuk pembangunan dan operasional masjid. Terima kasih atas kontribusi Anda.</p>
         </div>
         <div class="row justify-content-center">
-            <div class="col-lg-6 text-center">
-                <div class="mb-4 qris-container">
-                    <img src="{{ asset('masjid/main_files/assets/img/qris-code.png') }}" alt="QRIS Code" class="mb-3 img-fluid" style="max-width: 300px;">
-                    <h4 class="mb-2">Scan QRIS untuk Berinfaq</h4>
-                    <p class="text-muted">Semua pembayaran digital diterima (GoPay, OVO, DANA, dll)</p>
-                </div>
-                <div class="p-4 rounded bank-details bg-light">
-                    <h5 class="mb-3">Rekening Bank</h5>
-                    <div class="mb-2">
-                        <p class="mb-1">Bank Syariah Indonesia (BSI)</p>
-                        <p class="mb-1 fw-bold">1234567890</p>
-                        <p class="text-muted">a.n. Yayasan Masjid Khairul Amal</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Form Infaq</h3>
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">Infaq Online</h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('frontend.storeInfaq') }}" method="POST">
+                        <p class="text-center mb-4">Silahkan isi form di bawah ini untuk berinfaq secara online</p>
+                        <form id="infaqForm">
                             @csrf
-                            <div class="form-group mb-3">
-                                <label for="no_penerimaan">No. Penerimaan</label>
-                                <input type="text" class="form-control" id="no_penerimaan" name="no_penerimaan" value="{{ old('no_penerimaan', $no_penerimaan ?? '') }}" readonly>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="tanggal">Tanggal</label>
-                                <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ old('tanggal') }}" required>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="waktu">Waktu</label>
-                                <input type="time" class="form-control" id="waktu" name="waktu" value="{{ old('waktu') }}" required>
-                            </div>
                             <div class="form-group mb-3">
                                 <label for="donatur_id">Donatur</label>
                                 <select class="form-control" id="donatur_id" name="donatur_id" required>
@@ -288,24 +261,136 @@
                                 <label for="jenis_penerimaan">Jenis Penerimaan</label>
                                 <select class="form-control" id="jenis_penerimaan" name="jenis_penerimaan" required>
                                     <option value="" disabled selected>- Pilih Jenis Penerimaan -</option>
-                                    <option value="Transfer" {{ old('jenis_penerimaan') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
-                                    <option value="QRIS" {{ old('jenis_penerimaan') == 'QRIS' ? 'selected' : '' }}>QRIS</option>
-                                    <option value="Kotak Amal" {{ old('jenis_penerimaan') == 'Kotak Amal' ? 'selected' : '' }}>Kotak Amal</option>
+                                    <option value="Online">Pembayaran Online</option>
                                 </select>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="jumlah">Jumlah (Rp)</label>
-                                <input type="number" class="form-control" id="jumlah" name="jumlah" value="{{ old('jumlah') }}" required>
+                                <input type="number" class="form-control" id="jumlah" name="jumlah" min="1000" placeholder="Minimal Rp 1.000" required>
                             </div>
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="submit" class="btn btn-success w-100">Lanjutkan Pembayaran</button>
                         </form>
                     </div>
                 </div>
+            </div>
 
-            </div> --}}
+            <div class="col-lg-6">
+                <div class="mb-4 qris-container card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Infaq Manual</h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ asset('masjid/main_files/assets/img/qris-code.png') }}" alt="QRIS Code" class="mb-3 img-fluid" style="max-width: 200px;">
+                        <h5 class="mb-2">Scan QRIS untuk Berinfaq</h5>
+                        <p class="text-muted">Semua pembayaran digital diterima (GoPay, OVO, DANA, dll)</p>
+
+                        <div class="mt-4 p-3 rounded bank-details bg-light">
+                            <h5 class="mb-3">Rekening Bank</h5>
+                            <div class="mb-2">
+                                <p class="mb-1">Bank Syariah Indonesia (BSI)</p>
+                                <p class="mb-1 fw-bold">1234567890</p>
+                                <p class="text-muted">a.n. Yayasan Masjid Khairul Amal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
+
+<!-- Add Midtrans JS at the bottom of your file -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#infaqForm').submit(function(e) {
+            e.preventDefault();
+
+            // Show loading indicator
+            $(this).find('button[type="submit"]').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...');
+            $(this).find('button[type="submit"]').prop('disabled', true);
+
+            // Get form data
+            var formData = {
+                donatur_id: $('#donatur_id').val(),
+                jenis_penerimaan: $('#jenis_penerimaan').val(),
+                jumlah: $('#jumlah').val(),
+                _token: $('input[name="_token"]').val()
+            };
+
+            // Send AJAX request to create transaction
+            $.ajax({
+                url: '{{ route("midtrans.create") }}',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Redirect to payment page
+                        window.location.href = response.redirect_url;
+                    } else {
+                        alert('Terjadi kesalahan: ' + response.message);
+                        $('#infaqForm').find('button[type="submit"]').html('Lanjutkan Pembayaran');
+                        $('#infaqForm').find('button[type="submit"]').prop('disabled', false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan saat memproses pembayaran';
+                    alert(errorMessage);
+                    $('#infaqForm').find('button[type="submit"]').html('Lanjutkan Pembayaran');
+                    $('#infaqForm').find('button[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Add Midtrans JS at the bottom of your file -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#infaqForm').submit(function(e) {
+            e.preventDefault();
+
+            // Show loading indicator
+            $(this).find('button[type="submit"]').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...');
+            $(this).find('button[type="submit"]').prop('disabled', true);
+
+            // Get form data
+            var formData = {
+                donatur_id: $('#donatur_id').val(),
+                jenis_penerimaan: $('#jenis_penerimaan').val(),
+                jumlah: $('#jumlah').val(),
+                _token: '{{ csrf_token() }}'
+            };
+
+            // Send AJAX request to create transaction
+            $.ajax({
+                url: '{{ route("midtrans.create") }}',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Redirect to payment page
+                        window.location.href = response.redirect_url;
+                    } else {
+                        alert('Terjadi kesalahan: ' + response.message);
+                        $('#infaqForm').find('button[type="submit"]').html('Lanjutkan Pembayaran');
+                        $('#infaqForm').find('button[type="submit"]').prop('disabled', false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan saat memproses pembayaran';
+                    alert(errorMessage);
+                    $('#infaqForm').find('button[type="submit"]').html('Lanjutkan Pembayaran');
+                    $('#infaqForm').find('button[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
+    });
+</script>
+
 
 
 

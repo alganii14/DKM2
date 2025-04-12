@@ -22,7 +22,7 @@ use App\Http\Controllers\HargaHewanQurbanController;
 use App\Http\Controllers\TabunganQurbanController;
 use App\Http\Controllers\KeuanganQurbanController;
 use App\Http\Controllers\PenyaluranController;
-
+use App\Http\Controllers\MidtransController;
 
 
 // Login Routes
@@ -170,6 +170,14 @@ Route::prefix('tabungan-qurban')->group(function () {
     Route::put('/{id}', [TabunganQurbanController::class, 'update'])->name('tabungan-qurban.update');
     Route::delete('/{id}', [TabunganQurbanController::class, 'destroy'])->name('tabungan-qurban.destroy');
 });
+
+
+// Midtrans routes
+Route::post('/midtrans/create-transaction', [App\Http\Controllers\MidtransController::class, 'createTransaction'])->name('midtrans.create');
+Route::get('/midtrans/payment/{id}', [App\Http\Controllers\MidtransController::class, 'showPaymentPage'])->name('midtrans.payment');
+Route::post('/midtrans/notification', [App\Http\Controllers\MidtransController::class, 'handleNotification'])->name('midtrans.notification');
+Route::get('/midtrans/finish', [App\Http\Controllers\MidtransController::class, 'handleFinish'])->name('midtrans.finish');
+
 
 Route::resource('inventories', InventoryController::class);
 

@@ -28,10 +28,8 @@ class FrontendController extends Controller
         // Ambil semua data donatur untuk dropdown di form infaq
         $donaturs = Donatur::all();
 
-
         // Calculate total infaq balance
-        $totalInfaq = Infaq::sum('jumlah');
-
+        $totalInfaq = Infaq::where('status', 'success')->sum('jumlah');
 
         // Generate nomor penerimaan otomatis untuk form infaq
         $lastInfaq = Infaq::orderBy('id', 'desc')->first();
@@ -47,10 +45,11 @@ class FrontendController extends Controller
         // Format nomor penerimaan dengan menambahkan 3 digit angka urut
         $no_penerimaan = $prefix . $date . '.' . str_pad($lastNumber, 3, '0', STR_PAD_LEFT);
 
+        // Set Midtrans client key for frontend
+        $midtransClientKey = config('midtrans.client_key');
+
         // Kirim data ke view
-
-        return view('dashboard', compact('sholats', 'kajians', 'inventories', 'donaturs', 'no_penerimaan', 'totalInfaq'));
-
+        return view('dashboard', compact('sholats', 'kajians', 'inventories', 'donaturs', 'no_penerimaan', 'totalInfaq', 'midtransClientKey'));
     }
 
     /**
@@ -69,9 +68,8 @@ class FrontendController extends Controller
         ]);
 
         // Simpan data infaq baru
-        Infaq::create($validated);
+        Infaq::create(array_merge($validated, ['status' => 'success']));
 
         return redirect()->route('dashboard')->with('success', 'Terima kasih atas infaq Anda. Data infaq berhasil disimpan.');
     }
 }
-
